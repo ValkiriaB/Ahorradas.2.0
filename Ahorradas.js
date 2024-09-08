@@ -117,3 +117,30 @@ btnFiltros.onclick = () => {
 };
 
 
+//Local storage
+const guardarEnLocalStorage = (clave, objeto) => {
+  const objetoConvertidoAJSON = JSON.stringify(objeto);
+  return localStorage.setItem(clave, objetoConvertidoAJSON);
+};
+
+const obtenerCategorias = () => {
+  const categoriasEnLocalStorage = localStorage.getItem("categorias");
+  if (categoriasEnLocalStorage === null) {
+    return categorias;
+  } else {
+    return JSON.parse(categoriasEnLocalStorage);
+  }
+};
+const obtenerOperaciones = () => {
+  const operacionesEnLocalStorage = localStorage.getItem("operaciones");
+  if (operacionesEnLocalStorage === null) {
+    return operaciones;
+  } else {
+    return JSON.parse(operacionesEnLocalStorage);
+  }
+};
+
+
+
+
+
