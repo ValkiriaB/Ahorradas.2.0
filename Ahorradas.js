@@ -585,3 +585,120 @@ const balance = (arr) => {
 };
 balance(operacionesBalance);
 
+//Reportes
+const operacionesReportes = obtenerOperaciones();
+const categoriasReportes = obtenerCategorias();
+
+const operacionesGanancias = operacionesReportes.filter((operacion) => {
+  return operacion.tipo === "ganancia";
+});
+
+const mayorGanancia = operacionesGanancias.reduce(function (acc, operacion) {
+  return acc.monto > operacion.monto ? acc : operacion;
+});
+
+montoMayorGanancia.innerHTML = `+$${mayorGanancia.monto}`;
+catMayorGanancia.innerHTML = mayorGanancia.categoria;
+
+const operacionesGastos = operacionesReportes.filter((operacion) => {
+  return operacion.tipo === "gasto";
+});
+
+const mayorGasto = operacionesGastos.reduce(function (acc, operacion) {
+  return acc.monto > operacion.monto ? acc : operacion;
+});
+
+montoMayorGasto.innerHTML = `-$${mayorGasto.monto}`;
+catMayorGasto.innerHTML = mayorGasto.categoria;
+
+let operacionPorCategoria = [];
+
+const separarPorCategoria = () => {
+  categoriasReportes.map((categoria) => {
+    operacionPorCategoria.push([]);
+  });
+
+  operacionesReportes.map((operacion) => {
+    const indiceCategoria = categoriasReportes.indexOf(operacion.categoria);
+    operacionPorCategoria[indiceCategoria].push(operacion);
+  });
+};
+separarPorCategoria();
+
+const categoriasConOperaciones = operacionPorCategoria.filter((operacion) => {
+  return operacion.length >= 1;
+});
+
+const operacionesBalanceParaHTML = categoriasConOperaciones.map(
+  (arrayPorCategoria) => {
+    let gananciaBalance = 0;
+    let gastosBalance = 0;
+    let totalBalance = 0;
+    let categoria = "";
+
+    for (const operacion of arrayPorCategoria) {
+      categoria = operacion.categoria;
+
+      if (operacion.tipo == "ganancia") {
+        gananciaBalance += operacion.monto;
+      } else {
+        gastosBalance += operacion.monto;
+      }
+
+      totalBalance = gananciaBalance - gastosBalance;
+    }
+
+    return {
+      nombre: categoria,
+      gananciaBalance,
+      gastosBalance,
+      totalBalance,
+    };
+  }
+);
+
+const operacionesBalanceAHTML = operacionesBalanceParaHTML.reduce(
+  (acc, operacion) => {
+    return (
+      acc +
+      `
+    <div class="columns">
+        <div class="column has-text-weight-semibold">${operacion.nombre}</div>
+        <div class="column has-text-success has-text-right">$+${
+          operacion.gananciaBalance
+        }</div>
+        <div class="column has-text-danger has-text-right ">$-${
+          operacion.gastosBalance
+        }</div>
+        <div class="column has-text-right">${
+          operacion.totalBalance > 0 ? "+" : ""
+        }$${operacion.totalBalance}</div>
+    </div>
+    `
+    );
+  },
+  ""
+);
+
+listaTotales.innerHTML = operacionesBalanceAHTML;
+  
+//Categoria mayor balance
+
+const catMayorBalance = [...operacionesBalanceParaHTML];
+
+catMayorBalance.sort((a, b) => {
+  return b.totalBalance - a.totalBalance;
+});
+
+categoriaMayorBalance.innerText = catMayorBalance[0].nombre;
+montoCatMayorBalance.innerText = `$${catMayorBalance[0].totalBalance}`;
+
+// Meses con mayor ganancia y gastos
+
+let mayor_ganancia = 0;
+let mes_mayor_ganancia = "";
+let mayor_gasto = 0;
+let mes_mayor_gasto = "";
+
+
+
