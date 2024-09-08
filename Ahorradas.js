@@ -357,3 +357,90 @@ cancelarEditarCategorias.onclick = () => {
   cardAgregarCategorias.classList.remove("is-hidden");
   listaCategorias.classList.remove("is-hidden");
 };
+
+
+// Filtros
+
+let operacionesAFiltrar = obtenerOperaciones();
+
+const aplicarFiltros = () => {
+  const tipoFiltro = filtroTipo.value;
+
+  const filtradoPorTipo = operacionesAFiltrar.filter((operacion) => {
+    if (tipoFiltro === "todos") {
+      return operacion;
+    }
+    return operacion.tipo === tipoFiltro;
+  });
+
+  const categoriaFiltro = filtroCategorias.value;
+
+  const filtradoPorCategoria = filtradoPorTipo.filter((operacion) => {
+    if (categoriaFiltro === "todos") {
+      return operacion;
+    }
+    return operacion.categoria === categoriaFiltro;
+  });
+
+  const fechaFiltro = filtroFechas.value;
+  const filtradoPorFechas = filtradoPorCategoria.filter((operacion) => {
+    if (fechaFiltro === null) {
+      return operacion;
+    }
+    return operacion.fecha >= fechaFiltro;
+  });
+
+  const ordenFiltro = filtroOrden.value;
+  let copiaFiltradoPorFechas = [...filtradoPorFechas];
+
+  const filtradoFinal = copiaFiltradoPorFechas.sort((a, b) => {
+    let nameA = a.descripcion.toUpperCase();
+    let nameB = b.descripcion.toUpperCase();
+
+    if (ordenFiltro === "mas-reciente") {
+      return new Date(b.fecha) - new Date(a.fecha);
+    } else if (ordenFiltro === "menos-reciente") {
+      return new Date(a.fecha) - new Date(b.fecha);
+    } else if (ordenFiltro === "mayor-monto") {
+      return b.monto - a.monto;
+    } else if (ordenFiltro === "menor-monto") {
+      return a.monto - b.monto;
+    } else if (ordenFiltro === "a-z" && nameA < nameB) {
+      return -1;
+    } else if (ordenFiltro === "z-a" && nameA > nameB) {
+      return -1;
+    }
+  });
+
+  return filtradoFinal;
+};
+
+filtroFechas.onchange = () => {
+  const arrayFiltrado = aplicarFiltros();
+
+  agregarOperacionesAHTML(arrayFiltrado);
+  balance(arrayFiltrado);
+};
+
+filtroTipo.onchange = () => {
+  const arrayFiltrado = aplicarFiltros();
+
+  agregarOperacionesAHTML(arrayFiltrado);
+  balance(arrayFiltrado);
+};
+
+filtroCategorias.onchange = () => {
+  const arrayFiltrado = aplicarFiltros();
+
+  agregarOperacionesAHTML(arrayFiltrado);
+  balance(arrayFiltrado);
+};
+
+filtroOrden.onchange = () => {
+  const arrayFiltrado = aplicarFiltros();
+
+  agregarOperacionesAHTML(arrayFiltrado);
+};
+
+
+
