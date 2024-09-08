@@ -442,5 +442,103 @@ filtroOrden.onchange = () => {
   agregarOperacionesAHTML(arrayFiltrado);
 };
 
+// Nueva Operacion
+
+Date.prototype.toDateInputValue = function () {
+  const local = new Date(this);
+  return local.toJSON().slice(0, 10);
+};
+
+fechaInput.value = new Date().toDateInputValue();
+filtroFechas.value = new Date().toDateInputValue();
+
+const mostrarFormOperaciones = (operacion, indice) => {
+  operacionesCargadas.classList.add("is-hidden");
+  cardsPrincipales.classList.add("is-hidden");
+  CardNuevaOperacion.classList.remove("is-hidden");
+
+  if (operacion) {
+    inputDescripcion.value = operacion.descripcion;
+    montoInput.value = operacion.monto;
+    tipoInput.value = operacion.tipo;
+    selectCategoriaCarga.value = operacion.categoria;
+    fechaInput.value = operacion.fecha;
+  }
+
+  CardNuevaOperacion.onsubmit = (e) => {
+    const nuevaOperacion = {
+      descripcion: inputDescripcion.value,
+      monto: Number(montoInput.value),
+      tipo: tipoInput.value,
+      categoria: selectCategoriaCarga.value,
+      fecha: fechaInput.value,
+    };
+
+    const operaciones = obtenerOperaciones();
+
+    if (indice > -1) {
+      operaciones[indice] = nuevaOperacion;
+    } else {
+      operaciones.push(nuevaOperacion);
+    }
+
+    CardNuevaOperacion.reset();
+
+    guardarEnLocalStorage("operaciones", operaciones);
+
+    CardNuevaOperacion.classList.add("is-hidden");
+    cardsPrincipales.classList.remove("is-hidden");
+
+    agregarOperacionesAHTML(operaciones);
+  };
+};
+agregarOperacionesAHTML(operacionesParaHTML);
+
+btnNuevaOperacion.onclick = () => {
+  mostrarFormOperaciones();
+};
+
+const eliminarOperacion = (index) => {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: "¡No podrás recuperar esta operación!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
 
 
+   // Si el usuario confirma, eliminamos la operación
+      operacionesParaHTML.splice(index, 1);
+
+      guardarEnLocalStorage("operaciones", operacionesParaHTML);
+
+      agregarOperacionesAHTML(operacionesParaHTML);
+
+      CardNuevaOperacion.classList.add("is-hidden");
+
+      cardsPrincipales.classList.remove("is-hidden");
+
+      balance(operacionesParaHTML);
+
+      Swal.fire(
+        'Eliminada!',
+        'La operación ha sido eliminada.',
+        'success'
+      );
+    }
+  });
+};
+
+
+btnCancelarEdicion.onclick = () => {
+  CardNuevaOperacion.classList.add("is-hidden");
+  cardsPrincipales.classList.remove("is-hidden");
+  agregarOperacionesAHTML(operacionesParaHTML);
+};
+
+agregarCatASelects();
