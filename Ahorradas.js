@@ -202,3 +202,158 @@ const agregarOperacionesAHTML = (arr) => {
 };
 
 
+//Categorias 
+
+const agregarCatASelects = () => {
+  const categorias = obtenerCategorias();
+
+  const categoriasString = categorias.reduce((acc, categoria) => {
+    return acc + `<option value=${categoria}>${categoria}</option>`;
+  }, "");
+
+  selectCategorias.innerHTML = categoriasString;
+
+  const categoriasSinTodos = categorias.filter(
+    (categoria) => categoria !== "todos"
+  );
+
+  const categoriasSelectOperaciones = categoriasSinTodos.reduce(
+    (acc, categoria) => {
+      return acc + `<option value=${categoria}>${categoria}</option>`;
+    },
+    ""
+  );
+
+  selectCategoriaCarga.innerHTML = categoriasSelectOperaciones;
+};
+
+
+const agregarCategoriasAHTML = () => {
+  const categorias = obtenerCategorias();
+
+  const categoriasSinTodos = categorias.filter(
+    (categoria) => categoria !== "todos"
+  );
+
+  const categoriasAHTML = categoriasSinTodos.reduce((acc, categoria, index) => {
+    return (
+      acc +
+      `
+
+        <div class="columns ">
+
+            <div class="column is-9">
+                <p class="tag is-warning is-light "> ${categoria} </p>
+            </div>
+            <div class="column is-1 has-text-right ">
+                <button class="button is-success is-outlined is-small " onclick="editarCategoria('${categoria}')" id="editar-categorias-${index}" class="button is-ghost is-size-7 m-0">Editar</button>
+            </div>
+
+            <div class="column is-2 ">
+                <button class="button is-danger is-outlined is-small" onclick="eliminarCategoria('${categoria}')" id="eliminar-categorias-${index}" class="button is-ghost  is-size-7">Eliminar</button>
+            </div>
+
+        </div>
+
+       `
+    );
+  }, "");
+
+  listaCategorias.innerHTML = categoriasAHTML;
+};
+
+formAgregarCategorias.onsubmit = (e) => {
+  e.preventDefault();
+
+  const categorias = obtenerCategorias();
+  let nuevaCategoria = inputCategorias.value.trim(); // Para evitar espacios en blanco al inicio y final
+
+  if (categorias.indexOf(nuevaCategoria) === -1) {
+    categorias.push(nuevaCategoria);
+    inputCategorias.value = "";
+    guardarEnLocalStorage("categorias", categorias);
+    agregarCatASelects();
+    agregarCategoriasAHTML();
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Esa categoría ya existe. Por favor ingresa otro nombre.',
+      confirmButtonText: 'Entendido'
+    });
+  }
+};
+
+
+agregarCatASelects();
+agregarCategoriasAHTML();
+
+const editarCategoria = (categoria) => {
+  cardEditarCategorias.classList.remove("is-hidden");
+  cardAgregarCategorias.classList.add("is-hidden");
+  listaCategorias.classList.add("is-hidden");
+  inputEditarCategorias.value = categoria;
+
+  cardEditarCategorias.onsubmit = (e) => {
+    e.preventDefault();
+    const categorias = obtenerCategorias();
+
+    if (
+      categorias.indexOf(inputEditarCategorias.value) === -1 ||
+      categoria === inputEditarCategorias.value
+    ) {
+      const indice = categorias.indexOf(categoria);
+
+      categorias[indice] = inputEditarCategorias.value;
+
+      guardarEnLocalStorage("categorias", categorias);
+
+      agregarCategoriasAHTML();
+
+      agregarCatASelects();
+
+      cardEditarCategorias.classList.add("is-hidden");
+      cardAgregarCategorias.classList.remove("is-hidden");
+      listaCategorias.classList.remove("is-hidden");
+    } else if ((inputEditarCategorias.value = categoria)) {
+      alert("Esa categoria ya existe. Por favor ingresa otro nombre.");
+    }
+  };
+};
+
+const eliminarCategoria = (categoria) => {
+  Swal.fire({
+    title: '¿Está seguro?',
+    text: `Si borra la categoría "${categoria}", también se borrarán las operaciones relacionadas.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, borrar!',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Eliminar la categoría y las operaciones relacionadas
+      const categorias = obtenerCategorias();
+      const categoriasFiltradas = categorias.filter((elemento) => elemento !== categoria);
+      guardarEnLocalStorage("categorias", categoriasFiltradas);
+      agregarCategoriasAHTML();
+      agregarCatASelects();
+
+      const operaciones = obtenerOperaciones();
+      const operacionesFiltradas = operaciones.filter((operacion) => operacion.categoria !== categoria);
+      guardarEnLocalStorage("operaciones", operacionesFiltradas);
+      agregarOperacionesAHTML(operacionesFiltradas);
+
+      Swal.fire('¡Eliminada!', 'La categoría y sus operaciones relacionadas han sido eliminadas.', 'success');
+    }
+  });
+};
+
+
+
+cancelarEditarCategorias.onclick = () => {
+  cardEditarCategorias.classList.add("is-hidden");
+  cardAgregarCategorias.classList.remove("is-hidden");
+  listaCategorias.classList.remove("is-hidden");
+};
