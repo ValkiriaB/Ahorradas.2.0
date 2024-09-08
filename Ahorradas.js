@@ -542,3 +542,46 @@ btnCancelarEdicion.onclick = () => {
 };
 
 agregarCatASelects();
+// Balance
+
+let operacionesBalance = obtenerOperaciones();
+
+const balance = (arr) => {
+  const gastos = arr.filter((elemento) => {
+    return elemento.tipo === "gasto";
+  });
+
+  const ganancias = arr.filter((elemento) => {
+    return elemento.tipo === "ganancia";
+  });
+
+  const sumaGastos = gastos.reduce((acc, elemento) => {
+    return acc + elemento.monto;
+  }, 0);
+
+  const sumaGanancias = ganancias.reduce((acc, elemento) => {
+    return acc + elemento.monto;
+  }, 0);
+
+  const total = sumaGanancias - sumaGastos;
+
+  balanceGanancias.innerHTML = `+$${sumaGanancias}`;
+  balanceGastos.innerHTML = `-$${sumaGastos}`;
+
+  if (total < 0) {
+    balanceTotal.innerHTML = `${total}`;
+
+    balanceTotal.classList.remove("has-text-success");
+
+    balanceTotal.classList.add("has-text-danger");
+  }
+  if (total >= 0) {
+    balanceTotal.innerHTML = `+${total}`;
+
+    balanceTotal.classList.remove("has-text-danger");
+
+    balanceTotal.classList.add("has-text-success");
+  }
+};
+balance(operacionesBalance);
+
