@@ -141,6 +141,64 @@ const obtenerOperaciones = () => {
 };
 
 
+//Operaciones
+const operaciones = [];
 
+const operacionesParaHTML = obtenerOperaciones();
+
+btnNuevaOperacion.onclick = () => {
+  mostrarFormOperaciones();
+};
+const agregarOperacionesAHTML = (arr) => {
+  const operacionesAHTML = arr.reduce((acc, elemento, index) => {
+    return (
+      acc +
+      `
+        <div class="columns  is-multiline is-mobile is-vcentered">
+            <div class="mr-5 column is-2-tablet is-6-mobile ml-4">
+                <p class="has-text-weight-semibold">
+                    ${elemento.descripcion}
+                </p>
+            </div>
+            <div class="column  is-3-tablet is-6-mobile has-text-right-mobile ">
+                <span class ="tag is-warning is-light ml-6" >
+                    ${elemento.categoria}
+                </span>
+            </div>
+            <div class="mr-3 ml-6 column is-1-tablet has-text-grey is-hidden-mobile has-text-right-tablet has-text-centered">   
+                ${new Date(elemento.fecha).toLocaleDateString("es-AR", {
+                  timeZone: "UTC",
+                })}
+            </div>
+            <div class=" ml-6 column is-1-tablet is-6-mobile has-text-weight-bold has-text-right-tablet is-size-4-mobile ${
+              elemento.tipo === "ganancia"
+                ? "has-text-success"
+                : "has-text-danger"
+            }">
+                ${elemento.tipo === "ganancia" ? "+" : "-"}$${elemento.monto}
+            </div>
+            <div class="column  is-3-tablet is-6-mobile has-text-right ">
+                <button onclick='mostrarFormOperaciones(${JSON.stringify( elemento)},${index})' id=editar-operacion-${index} class="button is-success is-outlined is-small m-2">Editar</button>
+                  <button onclick='eliminarOperacion(${index})' id=eliminar-operacion-${index} class="button is-danger is-outlined is-small m-2">Eliminar</button>
+                  </div> 
+                 </div>
+         
+      
+        `
+    );
+  }, "");
+
+  listaOperaciones.innerHTML = operacionesAHTML;
+
+  if (operacionesAHTML.length > 0) {
+    operacionesCargadas.classList.remove("is-hidden");
+    listaOperaciones.classList.remove("is-hidden");
+    sinOperaciones.classList.add("is-hidden");
+  } else {
+    operacionesCargadas.classList.add("is-hidden");
+    listaOperaciones.classList.add("is-hidden");
+    sinOperaciones.classList.remove("is-hidden");
+  }
+};
 
 
